@@ -1,7 +1,30 @@
 const axios = require("axios");
-const fetchMercuryVectorData = async () => {
+const getPlanetId = (planetName) => {
+  switch (planetName.toLowerCase()) {
+    case "mercury":
+      return "199";
+    case "venus":
+      return "299";
+    case "earth":
+      return "399";
+    case "mars":
+      return "499";
+    case "jupiter":
+      return "599";
+    case "saturn":
+      return "699";
+    case "uranus":
+      return "799";
+    case "neptune":
+      return "899";
+    default:
+      throw new Error("Invalid planet name");
+  }
+};
+const fetchPlanetVectorData = async (planetName) => {
   try {
     const now = new Date();
+    const planetId = getPlanetId(planetName);
     const currentTime = now.toISOString().split(".")[0] + "Z"; // Current time in ISO format
     const pastTime =
       new Date(now.getTime() - 1000).toISOString().split(".")[0] + "Z"; // 1 second ago in ISO format
@@ -10,7 +33,7 @@ const fetchMercuryVectorData = async () => {
       {
         params: {
           format: "json",
-          COMMAND: "199", // Mercury"s ID in Horizons
+          COMMAND: planetId, // Mercury"s ID in Horizons
           OBJ_DATA: "YES",
           MAKE_EPHEM: "YES",
           EPHEM_TYPE: "VECTORS",
@@ -22,9 +45,8 @@ const fetchMercuryVectorData = async () => {
         },
       }
     );
-    const mercuryData = response.data.result;
-    // console.log(mercuryData);
-    const vectorData = extractVectorData(mercuryData);
+    const planetData = response.data.result;
+    const vectorData = extractVectorData(planetData);
     return vectorData;
   } catch (error) {
     console.error("Error fetching Mercury vector data:", error);
@@ -32,7 +54,6 @@ const fetchMercuryVectorData = async () => {
   }
 };
 
-fetchMercuryVectorData();
 const extractVectorData = (rawData) => {
   const lines = rawData.split("\n");
   const coordinateString = lines.find((line) => line.includes("X ="));
@@ -52,3 +73,5 @@ const extractVectorData = (rawData) => {
   });
   return result;
 };
+
+module.exports = { fetchPlanetVectorData };
