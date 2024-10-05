@@ -1,5 +1,5 @@
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
-import React, { useRef, useMemo, useEffect } from 'react'
+import React, { useRef, useMemo, useEffect, useState, forwardRef } from 'react'
 import { TrackballControls } from '@react-three/drei'
 import { Object3D, MathUtils, Color, Vector2  } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
@@ -134,19 +134,75 @@ function Effects() {
   return null;
 }
 
+const BloomEffect = () => {
+  const { gl, scene, camera } = useThree();
+  useEffect(() => {
+    const composer = new EffectComposer(gl);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(
+      new UnrealBloomPass(
+        new Vector2(window.innerWidth, window.innerHeight),
+        1.5, // strength
+        0.4, // radius
+        0.85 // threshold
+      )
+    );
+
+    const animateComposer = () => {
+      composer.render();
+      requestAnimationFrame(animateComposer);
+    };
+
+    animateComposer();
+  }, [gl, scene, camera]);
+
+  return null;
+};
+
+const CelestialBody = forwardRef(({ size, color, position}, ref) => {
+  return (
+    <mesh ref={ref}>
+        <sphereGeometry args={[size, 32, 32]} position={position}/>
+        <meshBasicMaterial color={color} />
+        </mesh>
+  );
+})
+
+
+const SolarSystem = () => {
+  const planetRef = useRef();
+  const [time, setTime] = useState(0);
+
+  // Orbital Mechanics: Simulate planet orbit
+  useFrame(() => {
+    setTime((prev) => prev + 0.01);
+    if (planetRef.current) {
+      planetRef.current.position.x = Math.sin(time) * 8; // Circular orbit
+      planetRef.current.position.z = Math.cos(time) * 8; // Circular orbit
+    }
+  });
+
+  return (
+    <>
+      {/* Sun */}
+      <CelestialBody size={2} color="#FDB813" position={[0, 0, 0]} />
+
+      {/* Planet */}
+      <CelestialBody size={0.5} color="red" position={[2, 2, 2]} ref={planetRef} />
+    </>
+  );
+};
+
 function App() {
   return (
    <div id="canvas-container">
      <Canvas>
-     <Effects/>
 
      <ambientLight intensity={0.5} />
       <directionalLight position={[5, 5, 5]} />
-      <Sun/>
+      <SolarSystem/>
       <InstancedStars count={1000} />
-      <OrbitingSphere radius={20} speed={0.02} color={"red"}/>
-      <OrbitingSphere radius={8} speed={0.02} color={"green"}/>
-      <OrbitingSphere radius={22} speed={0.01} color={"orange"}/>
+      <BloomEffect/>
 
       <TrackballControls/>
     </Canvas>
