@@ -12,18 +12,6 @@ import './App.css'
 // Extend three.js objects for use in JSX
 extend({ EffectComposer, RenderPass, UnrealBloomPass, TrackballControls });
 
-const G = 6.67430e-11
-const M_sun = 1.989e30
-
-class Planet{
-  constructor(name, mass, position, velocity){
-    this.name = name
-    this.mass = mass
-    this.position = position
-    this.velocity = velocity
-  }
-}
-
 function Sun() {
   const sunRef = useRef();
 
