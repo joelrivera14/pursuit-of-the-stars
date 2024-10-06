@@ -13,11 +13,14 @@
   position: relative;
 }
 
+input[type="number"] {
+  appearance: textfield !important;
+}
 canvas {
   background-color: black;
 }
 
-#play-button{
+#play-button {
   cursor: pointer;
   background-color: red;
   border-radius: 2px;
@@ -32,7 +35,7 @@ canvas {
   grid-template-columns: 1fr 1fr;
   position: absolute;
   bottom: 10px;
-  background-color: rgba(255, 255,255, 0.3);
+  background-color: rgba(255, 255, 255, 0.3);
   width: 100vw;
   justify-content: space-around;
   align-items: center; /* Add this line to vertically center content */
