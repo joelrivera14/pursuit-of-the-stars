@@ -2,7 +2,7 @@
   "name": "Earth",
   "startTime": "<someDate>",
   "endTime": "<someDate>",
-  "data": [
+  "positionalData": [
     {
       "time": "<someDate>",
       "velocityData": { "VX": 1.23223, "VY": 43.54354, "VZ": 42.444 },

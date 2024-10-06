@@ -1,26 +1,26 @@
-import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
-import React, { useRef, useMemo, useEffect, useState } from 'react'
-import { TrackballControls } from '@react-three/drei'
-import { Object3D, MathUtils, Color, Vector2  } from 'three'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import {BloomPass} from 'three/examples/jsm/postprocessing/BloomPass'
+import { Canvas, useFrame, extend, useThree } from "@react-three/fiber";
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { TrackballControls } from "@react-three/drei";
+import { Object3D, MathUtils, Color, Vector2 } from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { BloomPass } from "three/examples/jsm/postprocessing/BloomPass";
 /* import { useEffectComposer } from '@react-three/postprocessing' */
-import './App.css'
-import DateSlider from './components/ui/DateSlider'
+import "./App.css";
+import DateSlider from "./components/ui/DateSlider";
 // Extend three.js objects for use in JSX
 extend({ EffectComposer, RenderPass, UnrealBloomPass, TrackballControls });
 
-const G = 6.67430e-11
-const M_sun = 1.989e30
+const G = 6.6743e-11;
+const M_sun = 1.989e30;
 
-class Planet{
-  constructor(name, mass, position, velocity){
-    this.name = name
-    this.mass = mass
-    this.position = position
-    this.velocity = velocity
+class Planet {
+  constructor(name, mass, position, velocity) {
+    this.name = name;
+    this.mass = mass;
+    this.position = position;
+    this.velocity = velocity;
   }
 }
 
@@ -35,16 +35,15 @@ function Sun() {
   return (
     <mesh ref={sunRef} position={[0, 0, 0]}>
       <icosahedronGeometry args={[1, 15]} />
-      <meshBasicMaterial color={new Color('#FDB813')} />
+      <meshBasicMaterial color={new Color("#FDB813")} />
     </mesh>
   );
 }
 
-
 function OrbitingSphere({ radius = 5, speed = 0.01, color }) {
   const sphereRef = useRef(null);
   let angle = 0; // Initial angle
-  const randomOffset = Math.random() * 10
+  const randomOffset = Math.random() * 10;
 
   useFrame(() => {
     // Update the angle to animate the orbit
@@ -56,13 +55,12 @@ function OrbitingSphere({ radius = 5, speed = 0.01, color }) {
   });
 
   return (
-      <mesh ref={sphereRef}>
-        <sphereGeometry args={[0.5, 32, 32]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
+    <mesh ref={sphereRef}>
+      <sphereGeometry args={[0.5, 32, 32]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
 }
-
 
 function InstancedStars({ count = 1000 }) {
   const meshRef = useRef();
@@ -122,10 +120,10 @@ function Effects() {
     const onResize = () => {
       composer.current.setSize(window.innerWidth, window.innerHeight);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener("resize", onResize);
     };
   }, [gl, scene, camera, size]);
 
@@ -143,22 +141,22 @@ function App() {
   };
 
   return (
-   <div id="canvas-container">
-     <Canvas>
-       <Effects/>
-       <ambientLight intensity={0.5} />
-       <directionalLight position={[5, 5, 5]} />
-       <Sun/>
-       <InstancedStars count={1000} />
-       <OrbitingSphere radius={20} speed={0.02} color={"red"}/>
-       <OrbitingSphere radius={8} speed={0.02} color={"green"}/>
-       <OrbitingSphere radius={22} speed={0.01} color={"orange"}/>
+    <div id="canvas-container">
+      <Canvas>
+        <Effects />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 5, 5]} />
+        <Sun />
+        <InstancedStars count={1000} />
+        <OrbitingSphere radius={25} speed={0.02} color={"red"} />
+        <OrbitingSphere radius={8} speed={0.02} color={"green"} />
+        <OrbitingSphere radius={22} speed={0.01} color={"orange"} />
 
-       <TrackballControls/>
-     </Canvas>
-     <DateSlider onDateChange={handleDateChange}/>
-   </div>
+        <TrackballControls />
+      </Canvas>
+      <DateSlider onDateChange={handleDateChange} />
+    </div>
   );
 }
 
-export default App
+export default App;
