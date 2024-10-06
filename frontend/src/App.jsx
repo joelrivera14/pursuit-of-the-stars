@@ -16,6 +16,8 @@ extend({ EffectComposer, RenderPass, UnrealBloomPass, TrackballControls });
 
 const G = 6.6743e-11;
 const M_sun = 1.989e30;
+const SCALE = 1000000
+const VELOCITY_SCALE = 2
 
 const planetColorMap = {
   "mercury": "red",
@@ -44,31 +46,22 @@ function Sun() {
   );
 }
 
-function OrbitingSphere({ position, radius = 5, speed = 0.01, color, togglePlay }) {
-  const sphereRef = useRef(null);
-  let angle = 0; // Initial angle
-  const scaledPosition = useMemo(() =>{
-    return [position.vectorData.x / 1000000, position.vectorData.y / 1000000, position.vectorData.z / 1000000]
-  }, [position])
+function OrbitingSphere({ initialPosition, velocity, radius = 8, color }) {
+  const ref = useRef();
 
-  console.log(scaledPosition)
-
-  useFrame(() => {
-    // Update the angle to animate the orbit
-     angle += speed;
-     if(togglePlay){
-      sphereRef.current.position.x = 
-      sphereRef.current.position.y =
-      sphereRef.current.position.z =0
-     }
-     
-   }, [togglePlay]);
+  useFrame((state, delta) => {
+    if (ref.current) {
+      ref.current.position.x += (velocity.vx * delta) / SCALE;
+      ref.current.position.y += (velocity.vy * delta) / SCALE;
+      ref.current.position.z += (velocity.vz * delta) / SCALE;
+    }
+  }, [ref]);
 
   return (
-      <mesh ref={sphereRef} position={scaledPosition}>
-        <sphereGeometry args={[radius, 10, 10]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
+    <mesh ref={ref} position={[initialPosition.x / SCALE, initialPosition.y / SCALE, initialPosition.z / SCALE]}>
+      <sphereGeometry args={[radius, 32, 32]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
 }
 
@@ -106,40 +99,50 @@ function InstancedStars({ count = 1000 }) {
   );
 }
 
-function Effects() {
-  const { gl, scene, camera, size } = useThree();
-  const composer = useRef();
+function PlanetSystem({ coords, togglePlay, planetColorMap }) {
+  const planetRefs = useRef([]);
 
-  useEffect(() => {
-    const renderPass = new RenderPass(scene, camera);
-    const bloomPass = new BloomPass(
-      new Vector2(size.width, size.height),
-      1.5, // intensity
-      0.4,
-      0.85
-    );
-    bloomPass.threshold = 0;
-    bloomPass.strength = 10; // intensity of glow
-    bloomPass.radius = 1;
+  const planets = useMemo(() => {
+    if (coords) {
+      console.log(coords)
+      return coords.data.map((coord, index) => ({
+        name: coord.name,
+        initialPosition: coord.positionalData[0].vectorData,
+        velocity: coord.positionalData[0].velocityData,
+        color: planetColorMap[coord.name.toLowerCase()],
+        ref: planetRefs.current[index] || React.createRef()
+      }));
+    }
+    return [];
+  }, [coords, planetColorMap]);
 
-    composer.current = new EffectComposer(gl);
-    composer.current.addPass(renderPass);
-    composer.current.addPass(bloomPass);
+  useFrame((state, delta) => {
+    if (togglePlay) {
+      planets.forEach((planet, index) => {
+        const ref = planetRefs.current[index];
+        if (ref.current) {
+          ref.current.position.x += (planet.velocity.vx * delta) / SCALE;
+          ref.current.position.y += (planet.velocity.vy * delta) / SCALE;
+          ref.current.position.z += (planet.velocity.vz * delta) / SCALE;
+        }
+      });
+    }
+  });
 
-    // Resize the composer when the window resizes
-    const onResize = () => {
-      composer.current.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  }, [gl, scene, camera, size]);
-
-  useFrame(() => composer.current && composer.current.render(), 0);
-
-  return null;
+  return (
+    <>
+      {planets.map((planet, index) => (
+        <OrbitingSphere
+          key={planet.name}
+          ref={el => planetRefs.current[index] = el}
+          initialPosition={planet.initialPosition}
+          velocity={planet.velocity}
+          radius={8}
+          color={planet.color}
+        />
+      ))}
+    </>
+  );
 }
 
 function App() {
@@ -164,15 +167,7 @@ function App() {
     setCurrentDate(newDate);
     // TODO: update planet positions
   };
-
-  const Planets = useMemo(()=>{
-    if (coords){
-      return coords.data.map((coord) => {
-        return <OrbitingSphere radius={8} key={coord.name} position={coord.positionalData[0]} color={planetColorMap[coord.name.toLowerCase()]} togglePlay={togglePlay}/>
-      })
-    }
-  }, [coords, PlayButton])
-
+  
 
   return coords ? (
    <div id="canvas-container">
@@ -183,11 +178,13 @@ function App() {
       <InstancedStars count={10000}/>
       <Sun/>
 
-      {Planets}
+      <PlanetSystem coords={coords} togglePlay={togglePlay} planetColorMap={planetColorMap}/>
       <TrackballControls/>
     </Canvas>
-    <DateSlider onDateChange={handleDateChange}/>
-    <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)}/>
+   <div id="overlay">
+   <DateSlider onDateChange={handleDateChange}/>
+   <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)}/>
+   </div>
 
    </div>
   ) : <div>Loading ...</div>;
