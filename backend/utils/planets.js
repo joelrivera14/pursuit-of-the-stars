@@ -32,6 +32,7 @@ const fetchPlanetData = async (
   intervalType
 ) => {
   try {
+    console.log(planetName);
     const planetId = getPlanetId(planetName);
     const startTimeFormatted = startTime.split(".")[0] + "Z"; // Current time in ISO format
     const endTimeFormatted = endTime.split(".")[0] + "Z"; // 1 second ago in ISO format
@@ -55,21 +56,21 @@ const fetchPlanetData = async (
     const planetData = response.data.result;
     const vectorData = extractVectorData(planetData);
     const velocityData = extractVelocityData(planetData);
-    return { vectorData, velocityData, startTime, endTime };
+    return { planetName, vectorData, velocityData, startTime, endTime };
   } catch (error) {
-    console.error("Error fetching vector data:", error);
     throw error;
   }
 };
 const now = new Date();
 const past = new Date(now.getTime() - 1000 * 86400);
 
-fetchPlanetData("earth", past.toISOString(), now.toISOString(), 20, "d").then(
-  (e) => console.log(e)
-);
+// fetchPlanetData("earth", past.toISOString(), now.toISOString(), 20, "d").then(
+//   (e) => console.log(e)
+// );
 
 const extractVectorData = (rawData) => {
   const lines = rawData.split("\n");
+  console.log(lines);
   const coordinateString = lines.find((line) => line.includes("X ="));
   let currentLetter = "";
   const digitRegex = /\d/; // Regular expression to match any digit
