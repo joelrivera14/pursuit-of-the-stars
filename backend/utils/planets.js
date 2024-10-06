@@ -1,5 +1,10 @@
 const axios = require("axios");
-
+const {
+  PlanetPositionInformation,
+  TimeStampedData,
+  VelocityCoords,
+  VectorCoords,
+} = require("./planetClasses");
 const fs = require("fs");
 const getPlanetId = (planetName) => {
   switch (planetName.toLowerCase()) {
@@ -56,7 +61,10 @@ const fetchPlanetData = async (
       }
     );
     const planetData = response.data.result;
-    fs.writeFileSync("sampleData.txt", planetData);
+    // fs.writeFileSync("sampleData.txt", planetData);
+    //get unformatted data for planet at different points in time
+    const dataPointsWithTimeStamps = retrieveDataPoints(planetData);
+    //create an object containing relevant planet information
     const vectorData = extractVectorData(planetData);
     const velocityData = extractVelocityData(planetData);
     return { planetName, vectorData, velocityData, startTime, endTime };
