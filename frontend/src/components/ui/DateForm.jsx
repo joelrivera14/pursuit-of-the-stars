@@ -34,9 +34,7 @@ const DateForm = ({ currentDate, setCurrentDate }) => {
 
   const handleYearChange = (e) => {
     const value = e.target.value;
-    if (value === "" || (Number(value) >= 1500 && Number(value) <= 2024)) {
       setYear(value);
-    }
   };
   const handleDayChange = (e) => {
     const value = e.target.value;

@@ -29,11 +29,34 @@ canvas {
   padding: 15px 8px 15px 8px;
 }
 
-#overlay {
+#overlay{
+  height: 300px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   position: absolute;
   bottom: 10px;
   background-color: rgba(255, 255, 255, 0.3);
   width: 100vw;
   justify-content: space-around;
+  align-items: center; /* Add this line to vertically center content */
+  display: grid;
+}
+
+
+
+#right-half{
+  padding-left: 50px;
+  /* background-color: blue; */
+}
+#left-half{
+  padding-left: 20px;
+  padding-right: 20px;
+
+}
+
+#right-half, #left-half {
+  height: 100%; 
   display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

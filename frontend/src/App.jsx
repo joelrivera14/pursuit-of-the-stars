@@ -1,13 +1,15 @@
-import { Canvas, useFrame, extend, useThree } from "@react-three/fiber";
-import React, { useRef, useMemo, useEffect, useState } from "react";
-import { TrackballControls } from "@react-three/drei";
-import { Object3D, MathUtils, Color, Vector2 } from "three";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-import { BloomPass } from "three/examples/jsm/postprocessing/BloomPass";
-import axios from "axios";
-import PlayButton from "./components/ui/PlayButton";
+import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
+import React, { useRef, useMemo, useEffect, useState } from 'react'
+import { TrackballControls } from '@react-three/drei'
+import { Object3D, MathUtils, Color, Vector2  } from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import {BloomPass} from 'three/examples/jsm/postprocessing/BloomPass'
+import axios from 'axios'
+import PlayButton from "./components/ui/PlayButton"
+import HistoricalFacts from "./components/ui/HistoricalFacts"
+import facts from "../mockHistory.json"
 /* import { useEffectComposer } from '@react-three/postprocessing' */
 import "./App.css";
 import DateSlider from "./components/ui/DateSlider";
@@ -165,6 +167,7 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 }
 
 function App() {
+
   const [coords, setCoords] = useState(null);
   //add some date as te default start
   const [currentDate, setCurrentDate] = useState(null);
@@ -229,15 +232,23 @@ function App() {
         <InstancedStars count={10000} />
         <Sun />
 
-        {Planets}
-        <TrackballControls />
-      </Canvas>
-      <DateSlider onDateChange={handleDateChange} />
-      <DateForm currentDate={currentDate} setCurrentDate={setCurrentDate} />
+        {Planets}      
+        <TrackballControls/>
+    </Canvas>
+   <div id="overlay">
+   <div id="left-half">
+    <DateSlider onDateChange={handleDateChange}/>
+    <DateForm currentDate={currentDate} setCurrentDate={setCurrentDate} />
+
     </div>
-  ) : (
-    <div>Loading ...</div>
-  );
+    <div id="right-half">
+      <HistoricalFacts facts={facts} currentDate={currentDate}/>
+    </div>
+   </div>
+
+   </div>
+  ) : <div>Loading ...</div>;
 }
 
 export default App;
+ 
