@@ -4,6 +4,8 @@ const { fetchPlanetData } = require("../../utils/planets");
 
 // GET all planets
 //end time must be after start time
+//intervalVal is a number
+//intervalType is a String
 router.get("/", async (req, res) => {
   try {
     let {
@@ -44,9 +46,21 @@ router.get("/", async (req, res) => {
 // GET vector data for a specific planet
 router.get("/:planetName", async (req, res) => {
   const { planetName } = req.params;
+  let {
+    startTime = new Date().toISOString(),
+    endTime = new Date(Date.now() + 86400000).toISOString(),
+    intervalType = "d",
+    intervalVal = 1,
+  } = req.query;
 
   try {
-    const vectorData = await fetchPlanetVectorData(planetName);
+    const vectorData = await fetchPlanetData(
+      planet,
+      startTime,
+      endTime,
+      intervalVal,
+      intervalType
+    );
     res.json(vectorData);
   } catch (error) {
     if (error.message === "Invalid planet name") {
