@@ -9,7 +9,8 @@
 
 #canvas-container {
   width: 100vw;
-  height: 80vh;
+  height: 100vh;
+  position: relative;
 }
 
 canvas {
@@ -23,4 +24,13 @@ canvas {
   border: 1px;
   width: fit-content;
   padding: 15px 8px 15px 8px;
+}
+
+#overlay{
+  position: absolute;
+  bottom: 10px;
+  background-color: rgba(255, 255,255, 0.3);
+  width: 100vw;
+  justify-content: space-around;
+  display: flex;
 }
