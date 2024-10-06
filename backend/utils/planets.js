@@ -93,7 +93,7 @@ fetchPlanetData(
 const extractVectorData = (vectorString) => {
   let currentLetter = "";
   const digitRegex = /\d/; // Regular expression to match any digit
-  const result = {};
+  const result = new VectorCoords();
   vectorString.split(" ").forEach((str) => {
     if ("XYZ".includes(str)) {
       currentLetter = str.toLowerCase();
@@ -111,7 +111,7 @@ const extractVelocityData = (velocityString) => {
   const keys = ["VX", "VY", "VZ"];
   let currentKeyPointer = 0;
   const digitRegex = /\d/; // Regular expression to match any digit
-  const result = {};
+  const result = new VelocityCoords();
   velocityString.split("=").forEach((str) => {
     if (digitRegex.test(str)) {
       const currentKey = keys[currentKeyPointer].toLowerCase();
