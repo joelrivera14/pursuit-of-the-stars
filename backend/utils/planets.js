@@ -1,5 +1,10 @@
 const axios = require("axios");
-
+const {
+  PlanetPositionInformation,
+  TimeStampedData,
+  VelocityCoords,
+  VectorCoords,
+} = require("./planetClasses");
 const fs = require("fs");
 const getPlanetId = (planetName) => {
   switch (planetName.toLowerCase()) {
@@ -28,13 +33,12 @@ const getPlanetId = (planetName) => {
 //start and end time are ISOStrings
 const fetchPlanetData = async (
   planetName,
-  startTime = 0,
-  endTime = 0,
+  startTime,
+  endTime,
   intervalVal,
   intervalType
 ) => {
   try {
-    console.log(planetName);
     const planetId = getPlanetId(planetName);
     const startTimeFormatted = startTime.split(".")[0] + "Z"; // Current time in ISO format
     const endTimeFormatted = endTime.split(".")[0] + "Z"; // 1 second ago in ISO format
@@ -56,10 +60,21 @@ const fetchPlanetData = async (
       }
     );
     const planetData = response.data.result;
-    fs.writeFileSync("sampleData.txt", planetData);
-    const vectorData = extractVectorData(planetData);
-    const velocityData = extractVelocityData(planetData);
-    return { planetName, vectorData, velocityData, startTime, endTime };
+    // fs.writeFileSync("sampleData.txt", planetData);
+    //get unformatted data for planet at different points in time
+    const dataPointsWithOutFormattedTimeStamps = retrieveDataPoints(planetData);
+    //create an object containing relevant planet information
+    const formattedTimeStampData = getTimeStampedDataPoints(
+      dataPointsWithOutFormattedTimeStamps
+    );
+
+    const planetInfo = new PlanetPositionInformation(
+      planetName,
+      startTime,
+      endTime,
+      formattedTimeStampData
+    );
+    return planetInfo;
   } catch (error) {
     throw error;
   }
@@ -75,13 +90,11 @@ fetchPlanetData(
   "min"
 ).then((e) => e);
 
-const extractVectorData = (rawData) => {
-  const lines = rawData.split("\n");
-  const coordinateString = lines.find((line) => line.includes("X ="));
+const extractVectorData = (vectorString) => {
   let currentLetter = "";
   const digitRegex = /\d/; // Regular expression to match any digit
-  const result = {};
-  coordinateString.split(" ").forEach((str) => {
+  const result = new VectorCoords();
+  vectorString.split(" ").forEach((str) => {
     if ("XYZ".includes(str)) {
       currentLetter = str.toLowerCase();
     } else if (digitRegex.test(str)) {
@@ -94,41 +107,19 @@ const extractVectorData = (rawData) => {
   });
   return result;
 };
-const extractVelocityData = (rawData) => {
-  const lines = rawData.split("\n");
-  let velocityString = lines.find((line) => line.includes("VX="));
+const extractVelocityData = (velocityString) => {
   const keys = ["VX", "VY", "VZ"];
   let currentKeyPointer = 0;
   const digitRegex = /\d/; // Regular expression to match any digit
-  const result = {};
+  const result = new VelocityCoords();
   velocityString.split("=").forEach((str) => {
     if (digitRegex.test(str)) {
-      const currentKey = keys[currentKeyPointer];
+      const currentKey = keys[currentKeyPointer].toLowerCase();
       if (str[0] === " ") {
         str = str.slice(1);
       }
       result[currentKey] = Number(Number(str.split(" ")[0]).toFixed(20));
       currentKeyPointer++;
-    }
-  });
-  return result;
-};
-const extractVectorDataArray = (rawData) => {
-  const lines = rawData.split("\n");
-  console.log(lines);
-  const coordinateString = lines.find((line) => line.includes("X ="));
-  let currentLetter = "";
-  const digitRegex = /\d/; // Regular expression to match any digit
-  const result = {};
-  coordinateString.split(" ").forEach((str) => {
-    if ("XYZ".includes(str)) {
-      currentLetter = str.toLowerCase();
-    } else if (digitRegex.test(str)) {
-      if (str[0] === "=") result[currentLetter] = str.slice(1);
-      else {
-        result[currentLetter] = str.slice();
-      }
-      result[currentLetter] = Number(Number(result[currentLetter]).toFixed(20));
     }
   });
   return result;
@@ -302,18 +293,17 @@ function retrieveDataPoints(rawResponseData) {
 // input is output of retrieveDataPoints functions; will be one single date raw string
 // take that; grab date and output iso date string
 const convertRawDateStringToISO = (rawDateString) => {
-
-  const stringArr = rawDateString.split(" ")
+  const stringArr = rawDateString.split(" ");
   // get date by finding the string with a dash
-  const date = stringArr.find(str => str.includes("-"))
+  const date = stringArr.find((str) => str.includes("-"));
   // turn our mmm to the month number
-  let splitDate = date.split("-")
-  let month = getMonthIndex(splitDate[1])
-  let day = splitDate[2]
-  let year = splitDate[0]
-  let formattedDate = [month,day,year].join("-")
+  let splitDate = date.split("-");
+  let month = getMonthIndex(splitDate[1]);
+  let day = splitDate[2];
+  let year = splitDate[0];
+  let formattedDate = [month, day, year].join("-");
 
-  let stringToDate = (date,format,delimiter) => {
+  let stringToDate = (date, format, delimiter) => {
     let formatLowerCase = format.toLowerCase();
     let formatItems = formatLowerCase.split(delimiter);
     let dateItems = date.split(delimiter);
@@ -321,24 +311,59 @@ const convertRawDateStringToISO = (rawDateString) => {
     let dayIndex = formatItems.indexOf("dd");
     let yearIndex = formatItems.indexOf("yyyy");
     month = parseInt(dateItems[monthIndex]);
-    month-=1
-    let formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+    month -= 1;
+    let formatedDate = new Date(
+      dateItems[yearIndex],
+      month,
+      dateItems[dayIndex]
+    );
     return formatedDate;
-  }
-  let isoDate = stringToDate(formattedDate,"mm-dd-yyyy","-")
+  };
+  let isoDate = stringToDate(formattedDate, "mm-dd-yyyy", "-");
   return isoDate;
 };
 
 // Helper function to get month index
 const getMonthIndex = (monthStr) => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return months.indexOf(monthStr);
 };
 
 // console.log(retrieveDataPoints(v));
 
 const dataPoints = retrieveDataPoints(v);
-console.log(convertRawDateStringToISO(dataPoints[0][0]));
+// console.log(getTimeStampedDataPoints(dataPoints));
 
+//[time,vectors,velocity,LTRGRR]
+//the output of this function is
+//the positionalData property PlanetPositionInformation
+function getTimeStampedDataPoints(unformattedDataArray) {
+  const formattedDataArray = [];
+  for (const data of unformattedDataArray) {
+    const time = convertRawDateStringToISO(data[0]);
+    const vectorData = extractVectorData(data[1]);
+    const velocityData = extractVelocityData(data[2]);
+    const timeAndPositionalData = new TimeStampedData(
+      time,
+      velocityData,
+      vectorData
+    );
+    formattedDataArray.push(timeAndPositionalData);
+  }
+  return formattedDataArray;
+}
 
 module.exports = { fetchPlanetData };
