@@ -1,5 +1,5 @@
 import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
-import React, { useRef, useMemo, useEffect } from 'react'
+import React, { useRef, useMemo, useEffect, useState } from 'react'
 import { TrackballControls } from '@react-three/drei'
 import { Object3D, MathUtils, Color, Vector2  } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
@@ -8,7 +8,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import {BloomPass} from 'three/examples/jsm/postprocessing/BloomPass'
 /* import { useEffectComposer } from '@react-three/postprocessing' */
 import './App.css'
-
+import DateSlider from './components/ui/DateSlider'
 // Extend three.js objects for use in JSX
 extend({ EffectComposer, RenderPass, UnrealBloomPass, TrackballControls });
 
@@ -135,21 +135,28 @@ function Effects() {
 }
 
 function App() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const handleDateChange = (newDate) => {
+    setCurrentDate(newDate);
+    // TODO: update planet positions
+  };
+
   return (
    <div id="canvas-container">
      <Canvas>
-     <Effects/>
+       <Effects/>
+       <ambientLight intensity={0.5} />
+       <directionalLight position={[5, 5, 5]} />
+       <Sun/>
+       <InstancedStars count={1000} />
+       <OrbitingSphere radius={20} speed={0.02} color={"red"}/>
+       <OrbitingSphere radius={8} speed={0.02} color={"green"}/>
+       <OrbitingSphere radius={22} speed={0.01} color={"orange"}/>
 
-     <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} />
-      <Sun/>
-      <InstancedStars count={1000} />
-      <OrbitingSphere radius={20} speed={0.02} color={"red"}/>
-      <OrbitingSphere radius={8} speed={0.02} color={"green"}/>
-      <OrbitingSphere radius={22} speed={0.01} color={"orange"}/>
-
-      <TrackballControls/>
-    </Canvas>
+       <TrackballControls/>
+     </Canvas>
+     <DateSlider onDateChange={handleDateChange}/>
    </div>
   );
 }
