@@ -1,13 +1,13 @@
-import { Canvas, useFrame, extend, useThree } from '@react-three/fiber'
-import React, { useRef, useMemo, useEffect, useState } from 'react'
-import { TrackballControls } from '@react-three/drei'
-import { Object3D, MathUtils, Color, Vector2  } from 'three'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import {BloomPass} from 'three/examples/jsm/postprocessing/BloomPass'
-import axios from 'axios'
-import PlayButton from "./components/ui/PlayButton"
+import { Canvas, useFrame, extend, useThree } from "@react-three/fiber";
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { TrackballControls } from "@react-three/drei";
+import { Object3D, MathUtils, Color, Vector2 } from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { BloomPass } from "three/examples/jsm/postprocessing/BloomPass";
+import axios from "axios";
+import PlayButton from "./components/ui/PlayButton";
 /* import { useEffectComposer } from '@react-three/postprocessing' */
 import "./App.css";
 import DateSlider from "./components/ui/DateSlider";
@@ -20,15 +20,15 @@ const SCALE = 1000000
 const VELOCITY_SCALE = 2
 
 const planetColorMap = {
-  "mercury": "red",
-  "venus":"orange",
-  "earth":"green",
-  "mars": "purple",
-  "jupiter": "brown",
-  "saturn": "pink",
-  "uranus": "gray",
-  "neptune": "blue"
-}
+  mercury: "red",
+  venus: "orange",
+  earth: "green",
+  mars: "purple",
+  jupiter: "brown",
+  saturn: "pink",
+  uranus: "gray",
+  neptune: "blue",
+};
 
 function Sun() {
   const sunRef = useRef();
@@ -46,20 +46,29 @@ function Sun() {
   );
 }
 
-function OrbitingSphere({ initialPosition, velocity, radius = 8, color }) {
-  const ref = useRef();
+function OrbitingSphere({ position, radius = 5, speed = 0.01, color, togglePlay }) {
+  const sphereRef = useRef(null);
+  let angle = 0; // Initial angle
+  const scaledPosition = useMemo(() =>{
+    return [position.vectorData.x / 1000000, position.vectorData.y / 1000000, position.vectorData.z / 1000000]
+  }, [position])
 
-  useFrame((state, delta) => {
-    if (ref.current) {
-      ref.current.position.x += (velocity.vx * delta) / SCALE;
-      ref.current.position.y += (velocity.vy * delta) / SCALE;
-      ref.current.position.z += (velocity.vz * delta) / SCALE;
-    }
-  }, [ref]);
+  console.log(scaledPosition)
+
+  useFrame(() => {
+    // Update the angle to animate the orbit
+     angle += speed;
+     if(togglePlay){
+      sphereRef.current.position.x =
+      sphereRef.current.position.y =
+      sphereRef.current.position.z =0
+     }
+
+   }, [togglePlay]);
 
   return (
-    <mesh ref={ref} position={[initialPosition.x / SCALE, initialPosition.y / SCALE, initialPosition.z / SCALE]}>
-      <sphereGeometry args={[radius, 32, 32]} />
+    <mesh ref={sphereRef} position={scaledPosition}>
+      <sphereGeometry args={[radius, 10, 10]} />
       <meshStandardMaterial color={color} />
     </mesh>
   );
@@ -146,48 +155,60 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 }
 
 function App() {
+  const [coords, setCoords] = useState(null);
+  const [currentData, setCurrentDate] = useState(null);
+  const [togglePlay, setTogglePlay] = useState(false);
 
-  const [coords, setCoords] = useState(null)
-  const [currentData, setCurrentDate] = useState(null)
-  const [togglePlay, setTogglePlay] = useState(false)
-
-  const fetchData = async () =>{
-    const res = await axios.get("http://localhost:3000/planets/")
-    setCoords(res)
-    return res
-  }
+  const fetchData = async () => {
+    const res = await axios.get("http://localhost:3000/planets/");
+    setCoords(res);
+    return res;
+  };
 
   useEffect(() => {
-    if (!coords){
-      fetchData()
+    if (!coords) {
+      fetchData();
     }
-  }, [])
+  }, []);
 
   const handleDateChange = (newDate) => {
     setCurrentDate(newDate);
     // TODO: update planet positions
   };
-  
+
+  const Planets = useMemo(() => {
+    if (coords) {
+      return coords.data.map((coord) => {
+        return (
+          <OrbitingSphere
+            radius={8}
+            key={coord.name}
+            position={coord.positionalData[0]}
+            color={planetColorMap[coord.name.toLowerCase()]}
+            togglePlay={togglePlay}
+          />
+        );
+      });
+    }
+  }, [coords, PlayButton]);
 
   return coords ? (
-   <div id="canvas-container">
-     <Canvas>
+    <div id="canvas-container">
+      <Canvas>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 5, 5]} />
+        <InstancedStars count={10000} />
+        <Sun />
 
-     <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} />
-      <InstancedStars count={10000}/>
-      <Sun/>
-
-      <PlanetSystem coords={coords} togglePlay={togglePlay} planetColorMap={planetColorMap}/>
-      <TrackballControls/>
-    </Canvas>
-   <div id="overlay">
-   <DateSlider onDateChange={handleDateChange}/>
-   <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)}/>
-   </div>
-
-   </div>
-  ) : <div>Loading ...</div>;
+        {Planets}
+        <TrackballControls />
+      </Canvas>
+      <DateSlider onDateChange={handleDateChange} />
+      <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)} />
+    </div>
+  ) : (
+    <div>Loading ...</div>
+  );
 }
 
 export default App;
