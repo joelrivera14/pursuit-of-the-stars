@@ -21,13 +21,20 @@ const getPlanetId = (planetName) => {
       throw new Error("Invalid planet name");
   }
 };
-const fetchPlanetVectorData = async (planetName) => {
+//interval val is how many
+//intervalType is day, hour,min => 1d, 20min
+//start and end time are ISOStrings
+const fetchPlanetData = async (
+  planetName,
+  startTime = 0,
+  endTime = 0,
+  intervalVal,
+  intervalType
+) => {
   try {
-    const now = new Date();
     const planetId = getPlanetId(planetName);
-    const currentTime = now.toISOString().split(".")[0] + "Z"; // Current time in ISO format
-    const pastTime =
-      new Date(now.getTime() - 1000).toISOString().split(".")[0] + "Z"; // 1 second ago in ISO format
+    const startTimeFormatted = startTime.split(".")[0] + "Z"; // Current time in ISO format
+    const endTimeFormatted = endTime.split(".")[0] + "Z"; // 1 second ago in ISO format
     const response = await axios.get(
       "https://ssd.jpl.nasa.gov/api/horizons.api",
       {
@@ -38,21 +45,28 @@ const fetchPlanetVectorData = async (planetName) => {
           MAKE_EPHEM: "YES",
           EPHEM_TYPE: "VECTORS",
           CENTER: "@0", // Solar System Barycenter
-          START_TIME: pastTime,
-          STOP_TIME: currentTime,
-          STEP_SIZE: "1d", // Not relevant for single time point
+          START_TIME: startTimeFormatted,
+          STOP_TIME: endTimeFormatted,
+          STEP_SIZE: String(intervalVal) + intervalType, // Not relevant for single time point
           QUANTITIES: "1", // State vector (x,y,z,vx,vy,vz)
         },
       }
     );
     const planetData = response.data.result;
     const vectorData = extractVectorData(planetData);
-    return vectorData;
+    const velocityData = extractVelocityData(planetData);
+    return { vectorData, velocityData, startTime, endTime };
   } catch (error) {
-    console.error("Error fetching Mercury vector data:", error);
+    console.error("Error fetching vector data:", error);
     throw error;
   }
 };
+const now = new Date();
+const past = new Date(now.getTime() - 1000 * 86400);
+
+fetchPlanetData("earth", past.toISOString(), now.toISOString(), 20, "d").then(
+  (e) => console.log(e)
+);
 
 const extractVectorData = (rawData) => {
   const lines = rawData.split("\n");
@@ -68,10 +82,29 @@ const extractVectorData = (rawData) => {
       else {
         result[currentLetter] = str.slice();
       }
-      result[currentLetter] = Number(result[currentLetter]).toFixed(20);
+      result[currentLetter] = Number(Number(result[currentLetter]).toFixed(20));
+    }
+  });
+  return result;
+};
+const extractVelocityData = (rawData) => {
+  const lines = rawData.split("\n");
+  let velocityString = lines.find((line) => line.includes("VX="));
+  const keys = ["VX", "VY", "VZ"];
+  let currentKeyPointer = 0;
+  const digitRegex = /\d/; // Regular expression to match any digit
+  const result = {};
+  velocityString.split("=").forEach((str) => {
+    if (digitRegex.test(str)) {
+      const currentKey = keys[currentKeyPointer];
+      if (str[0] === " ") {
+        str = str.slice(1);
+      }
+      result[currentKey] = Number(Number(str.split(" ")[0]).toFixed(20));
+      currentKeyPointer++;
     }
   });
   return result;
 };
 
-module.exports = { fetchPlanetVectorData };
+module.exports = { fetchPlanetData };
