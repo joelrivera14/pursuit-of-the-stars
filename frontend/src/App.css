@@ -30,7 +30,7 @@ canvas {
 }
 
 #overlay{
-  height: 300px;
+  height: 150px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   position: absolute;

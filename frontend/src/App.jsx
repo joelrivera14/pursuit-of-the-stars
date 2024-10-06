@@ -167,10 +167,9 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 }
 
 function App() {
-
   const [coords, setCoords] = useState(null);
   //add some date as te default start
-  const [currentDate, setCurrentDate] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date("07-04-1776"));
   const [togglePlay, setTogglePlay] = useState(false);
 
   const fetchData = async () => {
@@ -178,6 +177,7 @@ function App() {
     setCoords(res);
     return res;
   };
+  
 
   const fetchDataWithParams = async (startTime) => {
     const end = new Date(startTime);
@@ -200,6 +200,7 @@ function App() {
       fetchDataWithParams(currentDate);
     }
   }, [currentDate]);
+
 
   const handleDateChange = (newDate) => {
     setCurrentDate((previousDate) => {
@@ -237,7 +238,6 @@ function App() {
     </Canvas>
    <div id="overlay">
    <div id="left-half">
-    <DateSlider onDateChange={handleDateChange}/>
     <DateForm currentDate={currentDate} setCurrentDate={setCurrentDate} />
 
     </div>
