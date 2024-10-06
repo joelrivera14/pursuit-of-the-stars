@@ -44,7 +44,7 @@ function Sun() {
   );
 }
 
-function OrbitingSphere({ position, radius = 5, speed = 0.01, color }) {
+function OrbitingSphere({ position, radius = 5, speed = 0.01, color, togglePlay }) {
   const sphereRef = useRef(null);
   let angle = 0; // Initial angle
   const scaledPosition = useMemo(() =>{
@@ -56,11 +56,13 @@ function OrbitingSphere({ position, radius = 5, speed = 0.01, color }) {
   useFrame(() => {
     // Update the angle to animate the orbit
      angle += speed;
-     // Calculate the x and z positions for the sphere based on a circular orbit
-     //sphereRef.current.position.x =0  
-     //sphereRef.current.position.y =0
-     //sphereRef.current.position.z =0
-   });
+     if(togglePlay){
+      sphereRef.current.position.x = 
+      sphereRef.current.position.y =
+      sphereRef.current.position.z =0
+     }
+     
+   }, [togglePlay]);
 
   return (
       <mesh ref={sphereRef} position={scaledPosition}>
@@ -166,7 +168,7 @@ function App() {
   const Planets = useMemo(()=>{
     if (coords){
       return coords.data.map((coord) => {
-        return <OrbitingSphere radius={8} key={coord.name} position={coord.positionalData[0]} color={planetColorMap[coord.name.toLowerCase()]}/>
+        return <OrbitingSphere radius={8} key={coord.name} position={coord.positionalData[0]} color={planetColorMap[coord.name.toLowerCase()]} togglePlay={togglePlay}/>
       })
     }
   }, [coords, PlayButton])
