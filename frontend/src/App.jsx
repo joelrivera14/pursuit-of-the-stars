@@ -148,7 +148,6 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
       });
     }
   });
-
   return (
     <>
       {planets.map((planet, index) => (
@@ -167,11 +166,23 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 
 function App() {
   const [coords, setCoords] = useState(null);
-  const [currentData, setCurrentDate] = useState(null);
+  //add some date as te default start
+  const [currentDate, setCurrentDate] = useState(null);
   const [togglePlay, setTogglePlay] = useState(false);
 
   const fetchData = async () => {
     const res = await axios.get("http://localhost:3000/planets/");
+    setCoords(res);
+    return res;
+  };
+
+  const fetchDataWithParams = async (startTime) => {
+    const end = new Date(startTime);
+    // Add one minute (60000 milliseconds) to the date
+    end.setTime(end.getTime() + 60000);
+    const res = await axios.get("http://localhost:3000/planets/", {
+      params: { startTime, endTime: end },
+    });
     setCoords(res);
     return res;
   };
@@ -181,9 +192,16 @@ function App() {
       fetchData();
     }
   }, []);
+  useEffect(() => {
+    if (coords) {
+      fetchDataWithParams(currentDate);
+    }
+  }, [currentDate]);
 
   const handleDateChange = (newDate) => {
-    setCurrentDate(newDate);
+    setCurrentDate((previousDate) => {
+      return newDate;
+    });
     // TODO: update planet positions
   };
 
@@ -215,7 +233,7 @@ function App() {
         <TrackballControls />
       </Canvas>
       <DateSlider onDateChange={handleDateChange} />
-      <DateForm />
+      <DateForm currentDate={currentDate} setCurrentDate={setCurrentDate} />
     </div>
   ) : (
     <div>Loading ...</div>
