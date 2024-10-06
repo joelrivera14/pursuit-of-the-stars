@@ -1,9 +1,13 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const port = 3000;
-const planetsController = require('./controllers/planetsController')
 
-app.use('/planets', planetsController)
+app.use(cors({ origin: "*" }));
+
+const planetsController = require("./controllers/planetsController");
+
+app.use("/planets", planetsController);
 
 app.get("/", (req, res) => {
   res.send("Hello from Express!");

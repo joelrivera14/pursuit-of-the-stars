@@ -1,0 +1,27 @@
+{
+  "name": "Earth",
+  "startTime": "<someDate>",
+  "endTime": "<someDate>",
+  "positionalData": [
+    {
+      "time": "<someDate>",
+      "velocityData": { "VX": 1.23223, "VY": 43.54354, "VZ": 42.444 },
+      "vectorData": { "x": 3, "y": 2, "z": 5 }
+    },
+    {
+      "time": "<someDate>",
+      "velocityData": { "VX": 1.23223, "VY": 43.54354, "VZ": 42.444 },
+      "vectorData": { "x": 3, "y": 2, "z": 5 }
+    },
+    {
+      "time": "<someDate>",
+      "velocityData": { "VX": 1.23223, "VY": 43.54354, "VZ": 42.444 },
+      "vectorData": { "x": 3, "y": 2, "z": 5 }
+    },
+    {
+      "time": "<someDate>",
+      "velocityData": { "VX": 1.23223, "VY": 43.54354, "VZ": 42.444 },
+      "vectorData": { "x": 3, "y": 2, "z": 5 }
+    }
+  ]
+}
