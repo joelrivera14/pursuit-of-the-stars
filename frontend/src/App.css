@@ -27,6 +27,7 @@ canvas {
 }
 
 #overlay{
+  height: 300px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   position: absolute;
@@ -37,7 +38,16 @@ canvas {
   display: grid;
 }
 
+
+
 #right-half{
   padding-left: 50px;
   /* background-color: blue; */
+}
+
+#right-half, #left-half {
+  height: 100%; /* Ensure both halves take full height of the overlay */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
 }

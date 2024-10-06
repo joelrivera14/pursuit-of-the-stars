@@ -184,7 +184,7 @@ function App() {
       <TrackballControls/>
     </Canvas>
    <div id="overlay">
-    <div>
+    <div id="left-half">
     <DateSlider onDateChange={handleDateChange}/>
     <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)}/>
     </div>
