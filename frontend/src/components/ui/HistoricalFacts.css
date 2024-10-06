@@ -1,0 +1,27 @@
+.fact-card {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    border-radius: 10px !important;
+    color: white !important;
+    max-width: 400px;
+    margin: 20px;
+}
+
+.fact-title {
+    color: #ffd700 !important;
+    margin-bottom: 10px !important;
+}
+
+.fact-date {
+    color: #bbb !important;
+    margin-bottom: 10px !important;
+}
+
+.fact-description {
+    line-height: 1.5 !important;
+    margin-bottom: 10px !important;
+}
+
+.fact-location {
+    font-style: italic;
+    color: #aaa !important;
+}

@@ -38,5 +38,6 @@ canvas {
 }
 
 #right-half{
+  padding-left: 50px;
   /* background-color: blue; */
 }
