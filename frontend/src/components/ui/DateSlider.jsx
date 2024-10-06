@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from '@mui/material';
 import { format, addDays, subDays, startOfDay } from 'date-fns';
 
-function DateSlider() {
+function DateSlider({ onDateChange }) {
   const today = startOfDay(new Date());
   const [selectedDate, setSelectedDate] = useState(today);
 
   const handleDateChange = (event, newValue) => {
-    setSelectedDate(addDays(today, newValue));
+    const newDate = addDays(today, newValue);
+    setSelectedDate(newDate);
+    onDateChange(newDate);
   };
+
+  useEffect(() => {
+    onDateChange(selectedDate);
+  }, []);
 
   return (
     <div>
