@@ -55,7 +55,7 @@ router.get("/:planetName", async (req, res) => {
 
   try {
     const vectorData = await fetchPlanetData(
-      planet,
+      planetName,
       startTime,
       endTime,
       intervalVal,

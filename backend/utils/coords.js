@@ -80,7 +80,7 @@ const extractVelocityData = (velocityString) => {
   const result = new VelocityCoords();
   velocityString.split("=").forEach((str) => {
     if (digitRegex.test(str)) {
-      const currentKey = keys[currentKeyPointer];
+      const currentKey = keys[currentKeyPointer].toLowerCase();
       if (str[0] === " ") {
         str = str.slice(1);
       }
