@@ -7,7 +7,7 @@ class PlanetPositionInformation {
   }
 }
 class TimeStampedData {
-  constructor(time, velocityData, vectorData) {
+  constructor(time = new Date(), velocityData, vectorData) {
     this.time = time;
     this.velocityData = velocityData;
     this.vectorData = vectorData;

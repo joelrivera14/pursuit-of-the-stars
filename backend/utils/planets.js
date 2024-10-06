@@ -65,6 +65,7 @@ const fetchPlanetData = async (
     //get unformatted data for planet at different points in time
     const dataPointsWithTimeStamps = retrieveDataPoints(planetData);
     //create an object containing relevant planet information
+    const formattedTimeStampData = []
     const vectorData = extractVectorData(planetData);
     const velocityData = extractVelocityData(planetData);
     return { planetName, vectorData, velocityData, startTime, endTime };
