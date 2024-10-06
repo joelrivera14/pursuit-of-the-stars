@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { time, timeEnd } = require("console");
+
 const fs = require("fs");
 const getPlanetId = (planetName) => {
   switch (planetName.toLowerCase()) {
@@ -297,7 +297,8 @@ function retrieveDataPoints(rawResponseData) {
     }
     return singleTimeStampEntry;
   });
+  return timeStampEntries;
 }
-retrieveDataPoints(v);
+console.log(retrieveDataPoints(v));
 
 module.exports = { fetchPlanetData };
