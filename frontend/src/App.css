@@ -15,3 +15,12 @@
 canvas {
   background-color: black;
 }
+
+#play-button{
+  cursor: pointer;
+  background-color: red;
+  border-radius: 2px;
+  border: 1px;
+  width: fit-content;
+  padding: 15px 8px 15px 8px;
+}
