@@ -13,11 +13,14 @@
   position: relative;
 }
 
+input[type="number"] {
+  appearance: textfield !important;
+}
 canvas {
   background-color: black;
 }
 
-#play-button{
+#play-button {
   cursor: pointer;
   background-color: red;
   border-radius: 2px;
@@ -26,10 +29,10 @@ canvas {
   padding: 15px 8px 15px 8px;
 }
 
-#overlay{
+#overlay {
   position: absolute;
   bottom: 10px;
-  background-color: rgba(255, 255,255, 0.3);
+  background-color: rgba(255, 255, 255, 0.3);
   width: 100vw;
   justify-content: space-around;
   display: flex;

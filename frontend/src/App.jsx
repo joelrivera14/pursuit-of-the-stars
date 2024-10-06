@@ -11,13 +11,14 @@ import PlayButton from "./components/ui/PlayButton";
 /* import { useEffectComposer } from '@react-three/postprocessing' */
 import "./App.css";
 import DateSlider from "./components/ui/DateSlider";
+import DateForm from "./components/ui/DateForm";
 // Extend three.js objects for use in JSX
 extend({ EffectComposer, RenderPass, UnrealBloomPass, TrackballControls });
 
 const G = 6.6743e-11;
 const M_sun = 1.989e30;
-const SCALE = 1000000
-const VELOCITY_SCALE = 2
+const SCALE = 1000000;
+const VELOCITY_SCALE = 2;
 
 const planetColorMap = {
   mercury: "red",
@@ -46,25 +47,35 @@ function Sun() {
   );
 }
 
-function OrbitingSphere({ position, radius = 5, speed = 0.01, color, togglePlay }) {
+function OrbitingSphere({
+  position,
+  radius = 5,
+  speed = 0.01,
+  color,
+  togglePlay,
+}) {
   const sphereRef = useRef(null);
   let angle = 0; // Initial angle
-  const scaledPosition = useMemo(() =>{
-    return [position.vectorData.x / 1000000, position.vectorData.y / 1000000, position.vectorData.z / 1000000]
-  }, [position])
+  const scaledPosition = useMemo(() => {
+    return [
+      position.vectorData.x / 1000000,
+      position.vectorData.y / 1000000,
+      position.vectorData.z / 1000000,
+    ];
+  }, [position]);
 
-  console.log(scaledPosition)
+  console.log(scaledPosition);
 
   useFrame(() => {
     // Update the angle to animate the orbit
-     angle += speed;
-     if(togglePlay){
+    angle += speed;
+    if (togglePlay) {
       sphereRef.current.position.x =
-      sphereRef.current.position.y =
-      sphereRef.current.position.z =0
-     }
-
-   }, [togglePlay]);
+        sphereRef.current.position.y =
+        sphereRef.current.position.z =
+          0;
+    }
+  }, [togglePlay]);
 
   return (
     <mesh ref={sphereRef} position={scaledPosition}>
@@ -113,13 +124,13 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 
   const planets = useMemo(() => {
     if (coords) {
-      console.log(coords)
+      console.log(coords);
       return coords.data.map((coord, index) => ({
         name: coord.name,
         initialPosition: coord.positionalData[0].vectorData,
         velocity: coord.positionalData[0].velocityData,
         color: planetColorMap[coord.name.toLowerCase()],
-        ref: planetRefs.current[index] || React.createRef()
+        ref: planetRefs.current[index] || React.createRef(),
       }));
     }
     return [];
@@ -143,7 +154,7 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
       {planets.map((planet, index) => (
         <OrbitingSphere
           key={planet.name}
-          ref={el => planetRefs.current[index] = el}
+          ref={(el) => (planetRefs.current[index] = el)}
           initialPosition={planet.initialPosition}
           velocity={planet.velocity}
           radius={8}
@@ -204,7 +215,7 @@ function App() {
         <TrackballControls />
       </Canvas>
       <DateSlider onDateChange={handleDateChange} />
-      <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)} />
+      <DateForm />
     </div>
   ) : (
     <div>Loading ...</div>
