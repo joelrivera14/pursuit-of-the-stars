@@ -8,6 +8,8 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import {BloomPass} from 'three/examples/jsm/postprocessing/BloomPass'
 import axios from 'axios'
 import PlayButton from "./components/ui/PlayButton"
+import HistoricalFacts from "./components/ui/HistoricalFacts"
+import facts from "../mockHistory.json"
 /* import { useEffectComposer } from '@react-three/postprocessing' */
 import "./App.css";
 import DateSlider from "./components/ui/DateSlider";
@@ -148,7 +150,7 @@ function PlanetSystem({ coords, togglePlay, planetColorMap }) {
 function App() {
 
   const [coords, setCoords] = useState(null)
-  const [currentData, setCurrentDate] = useState(null)
+  const [currentDate, setCurrentDate] = useState(null)
   const [togglePlay, setTogglePlay] = useState(false)
 
   const fetchData = async () =>{
@@ -187,6 +189,7 @@ function App() {
     <PlayButton handleClick={(e) => setTogglePlay(!togglePlay)}/>
     </div>
     <div id="right-half">
+      <HistoricalFacts facts={facts} currentDate={currentDate}/>
     </div>
    </div>
    </div>
