@@ -1,9 +1,9 @@
 class PlanetPositionInformation {
-  constructor(name, startTime, endTime, positonalData) {
+  constructor(name, startTime, endTime, positionalData) {
     this.name = name;
     this.startTime = startTime;
     this.endTime = endTime;
-    this.positonalData = positonalData;
+    this.positionalData = positionalData;
   }
 }
 class TimeStampedData {
